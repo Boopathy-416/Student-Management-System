@@ -15,19 +15,23 @@ export const addStudent = async (req, res) => {
 // ✅ Get All Students (pagination + filter)
 export const getStudents = async (req, res) => {
   try {
-    const { page = 1, limit = 10, search = "", className = "" } = req.query;
+    let { page = 1, limit = 10 } = req.query;
+    page = parseInt(page);
+    limit = parseInt(limit);
 
-    const query = {};
-    if (search) query.name = { $regex: search, $options: "i" };
-    if (className) query.class = className;
-
-    const students = await Student.find(query)
+    const total = await Student.countDocuments();
+    const students = await Student.find()
+      .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
-      .limit(parseInt(limit));
+      .limit(limit)
+      .lean();
 
-    const total = await Student.countDocuments(query);
-
-    res.json({ students, total, page, pages: Math.ceil(total / limit) });
+    res.json({
+      students,
+      total,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
