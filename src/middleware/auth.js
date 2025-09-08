@@ -1,4 +1,7 @@
 import jwt from "jsonwebtoken";
+
+
+
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
 
 export const protect = (roles = []) => {
@@ -19,3 +22,5 @@ export const protect = (roles = []) => {
     }
   };
 };
+
+
